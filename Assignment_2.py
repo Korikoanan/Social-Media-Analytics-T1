@@ -9,25 +9,14 @@ from textblob import TextBlob
 import re
 import string
 import pandas as pd
-import csv
-import random
 import networkx as nx
 import matplotlib.pyplot as plt
-import nltk
-#nltk.download('stopwords')
-#nltk.download('punkt') #punkt tokenizer model
-#nltk.download('averaged_perceptron_tagger')
-#nltk.download('wordnet')
-#nltk.download('omw-1.4')
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk import FreqDist, bigrams
-from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer, TfidfTransformer
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import classification_report
+
 
 def twitter_setup():
     #Authentication and access using keys
@@ -53,7 +42,9 @@ def keyword_tweets(api, keyword, number_of_tweets):
         tweets.append(status)
     return tweets
 
-keyword_alltweets = keyword_tweets(extractor, "Xiaomi", 3)
+keyword_alltweets = keyword_tweets(extractor, "Xiaomi", 10)
+data = pd.DataFrame(data=[tweet.text for tweet in keyword_alltweets], columns=['Tweets'])
+data.to_csv("C:/Users/user/Documents/Social Media Analytics/tweets.csv")
 
 def lemmatize_sentence(tokens):
     lemmatizer = WordNetLemmatizer()
@@ -79,7 +70,7 @@ def remove_noise(tweet_tokens, stop_words):
 stop_words = stopwords.words('english')
 stop_words.extend (['XiaoMi','Feedback','Customer'])
 
-tweets_token=keyword_alltweets['Tweets'].apply(word_tokenize).tolist()
+tweets_token=data['Tweets'].apply(word_tokenize).tolist()
 
 cleaned_tokens = []
 for tokens in tweets_token:
@@ -121,7 +112,7 @@ nx.draw_networkx(network_graph, pos,
                  ax=ax)
 
 text_blob = []
-for tweet in keyword_alltweets ['Tweets'].tolist():
+for tweet in data ['Tweets'].tolist():
     analysis = TextBlob(tweet)
     if analysis.sentiment.polarity==0:
         sentiment="Neutral"
@@ -130,9 +121,10 @@ for tweet in keyword_alltweets ['Tweets'].tolist():
     elif analysis.sentiment.polarity<0:
         sentiment="Negative"
     text_blob.append(sentiment)
-keyword_alltweets['Sentiment'] = text_blob
+data['Sentiment'] = text_blob
 
-labelled_tweets=keyword_alltweets[['Tweets','Sentiment']]
+
+labelled_tweets=data[['Tweets','Sentiment']]
 labelled_tweets.drop(labelled_tweets.loc[labelled_tweets['Sentiment']=='Neutral'].index, inplace=True)
 
 tweets_token=labelled_tweets['Tweets'].apply(word_tokenize).tolist()
