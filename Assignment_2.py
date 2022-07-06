@@ -6,6 +6,7 @@ Created on Tue Jul  5 15:28:16 2022
 """
 import tweepy
 from textblob import TextBlob
+import numpy as np
 import re
 import string
 import pandas as pd
@@ -42,7 +43,7 @@ def keyword_tweets(api, keyword, number_of_tweets):
         tweets.append(status)
     return tweets
 
-keyword_alltweets = keyword_tweets(extractor, "Xiaomi", 10)
+keyword_alltweets = keyword_tweets(extractor, "Xiaomi", 100)
 data = pd.DataFrame(data=[tweet.text for tweet in keyword_alltweets], columns=['Tweets'])
 data.to_csv("C:/Users/user/Documents/Social Media Analytics/tweets.csv")
 
@@ -68,7 +69,7 @@ def remove_noise(tweet_tokens, stop_words):
                 cleaned_tokens.append(token.lower())
         return cleaned_tokens
 stop_words = stopwords.words('english')
-stop_words.extend (['XiaoMi','Feedback','Customer'])
+stop_words.extend (['Xiaomi','samsung'])
 
 tweets_token=data['Tweets'].apply(word_tokenize).tolist()
 
@@ -103,9 +104,9 @@ fig, ax = plt.subplots(figsize = (20,17))
 pos = nx.spring_layout(network_graph, k=1)
 
 nx.draw_networkx(network_graph, pos,
-                 font_size =20,
+                 font_size =15,
                  width=3,
-                 node_size=50,
+                 node_size=10,
                  edge_color='grey',
                  node_color='blue',
                  with_labels = True,
@@ -122,6 +123,7 @@ for tweet in data ['Tweets'].tolist():
         sentiment="Negative"
     text_blob.append(sentiment)
 data['Sentiment'] = text_blob
+
 
 
 labelled_tweets=data[['Tweets','Sentiment']]
